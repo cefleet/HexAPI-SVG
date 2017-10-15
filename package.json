@@ -1,0 +1,11 @@
+{
+  "name": "SVGHex",
+  "description": "Simple SVG Drawer for the HEXAPI library",
+  "version": "0.0.1",
+  "dependencies": {
+    "grunt": "*",
+    "grunt-contrib-uglify":"*",
+    "grunt-contrib-concat":"*",
+    "grunt-contrib-watch":"*"
+  }
+}
