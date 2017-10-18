@@ -1,13 +1,16 @@
   return {
 
-    setupGrid:setupGrid,
+  //  setupGrid:setupGrid,
+  //  getGrid:getGrid,
+    newGrid: newGrid,
     getGrid:getGrid,
+    getAllGrids:getAllGrids,
     drawHex:drawHex,
     drawHexes:drawHexes,
     animateHex:animateHex,
     highlightHex:highlightHex,
     highlightList:highlightList,
-    highlightArea:highlightArea
+    highlightArea:highlightArea,
   }
 //sequences:sequences,
 //  resetHexes:resetHexes,

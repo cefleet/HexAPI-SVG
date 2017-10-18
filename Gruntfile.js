@@ -25,9 +25,11 @@ module.exports = function(grunt) {
         files : {
           'svgHex.js': [
             'src/svgHex.js',
+            'libraries/HexAPI.min.js',
+            'libraries/svg.min.js',
             'src/anims.js',
             'src/sequences.js',
-            'src/svgHexReturn.js'
+            'src/close.js'
           ]
         }
       }

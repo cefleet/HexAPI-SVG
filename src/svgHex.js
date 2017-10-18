@@ -1,4 +1,5 @@
 var svgHex = (function(){
+  var grids = {};
   //sets up the grid needed for the whole thing to work
   var grid = null;
 
@@ -17,29 +18,45 @@ var svgHex = (function(){
       }
   };
 
-  /*Sets Up the grid for this instance of svgHex.
-    I may consider making this instanceable
-  */
-  function setupGrid(container,options){
+  function newGrid(container,options){
     if(container){
-      grid = HexAPI.setup(options);
-      //draw = SVG(container);
-      groups = {
-        default : SVG(container)
-      }
-
-      groups['highlight'] = groups.default.nested();
-      //console.log(grid);
+      var id = Math.random();
+      grids[id] = {
+        id:id
+      };
+      var g = _setupGrid(container,options);
+      grids[id]['groups'] = g[1];
+      grids[id]['grid'] = g[0];
+      return grids[id];
     } else {
-      console.log('You must specify a container for the SVG.');
+      console.warn('You must specify a container for the SVG.');
+      return false;
     }
   };
 
-  /*
-    simply retrns the grid
+  function getGrid(id){
+    return grids[id];
+  };
+
+  function getAllGrids(){
+    return grids;
+  };
+
+  /*Sets Up the grid for this instance of svgHex.
+    I may consider making this instanceable
   */
-  function getGrid(){
-    return grid;
+  function _setupGrid(container,options){
+    var grid = HexAPI.setup(options);
+      //draw = SVG(container);
+    var groups = {
+      default : SVG(container)
+    }
+
+    groups['highlight'] = groups.default.nested();
+
+    return [grid, groups];
+      //console.log(grid);
+
   };
 
   /*
@@ -55,15 +72,15 @@ var svgHex = (function(){
       events objects:
         "eventType": function
   */
-  function drawHex(hex, options){
+  function drawHex(grid,hex,options){
     options = options || gOptions;
     options.parent = options.parent || "default";
 
-    if(!groups.hasOwnProperty(options.parent)){
-      groups[options.parent] = groups.default.nested();
+    if(!grid.groups.hasOwnProperty(options.parent)){
+      grid.groups[options.parent] = grid.groups.default.nested();
     }
 
-    var parent = groups[options.parent];
+    var parent = grid.groups[options.parent];
 
     var points = [];
     var pHex;
@@ -103,9 +120,9 @@ var svgHex = (function(){
 
 
 
-  function highlightArea(hexElem,range,options,ignoreList){
+  function highlightArea(grid,hexElem,range,options,ignoreList){
     options = options || {};
-    var hexList = _idsToHex(hexElem.hex.getHexesWithinDistance(range),this);
+    var hexList = _idsToHex(grid,hexElem.hex.getHexesWithinDistance(range));
     //oneAtATime,ringOut,ringIn
     if(options.sequence) {
       options.range = range;
@@ -116,13 +133,13 @@ var svgHex = (function(){
     return hexList;
   };
 
-  function _idsToHex(list){
+  function _idsToHex(grid,list){
     //_this = _this || this;
     var hexList = {}
     for(var i = 0; i <list.length; i++){
       var id = list[i].q+'.'+list[i].r+'.'+list[i].s;
-      if(grid.map.hasOwnProperty(id)){
-        hexList[id] = grid.map[id];
+      if(grid.grid.map.hasOwnProperty(id)){
+        hexList[id] = grid.grid.map[id];
       }
     }
     return hexList;
@@ -144,14 +161,14 @@ var svgHex = (function(){
   };
 */
 
-  function highlightList(list,options){
+  function highlightList(grid,list,options){
 
     options = options || {};
 
     options.parent = options.parent || "highlight";
     //makes the item if it's not there
-    if(!groups.hasOwnProperty(options.parent)){
-      groups[options.parent] = groups.default.nested();
+    if(!grid.groups.hasOwnProperty(options.parent)){
+      grid.groups[options.parent] = grid.groups.default.nested();
     }
     if(options.reset){
       resetHexes(options.reset);
@@ -160,18 +177,18 @@ var svgHex = (function(){
     }
 
     for(h in list){
-      highlightHex(list[h],options);
+      highlightHex(grid,list[h],options);
     }
   };
 
-  function resetHexes(resetList){
+  function resetHexes(grid,resetList){
 
   //  console.log(highlighted)
   //If resetList is not defined, then we need to reset all of the hexes
     if(!resetList){
-      for(var p in groups){
+      for(var p in grid.groups){
         if(p != "default"){
-          groups[p].clear()
+          grid.groups[p].clear()
         }
       }
     } else {
@@ -179,23 +196,23 @@ var svgHex = (function(){
         resetList = [resetList]
       }
       for(var i = 0; i < resetList.length; i++){
-        if(groups.hasOwnProperty(resetList[i])){
-          groups[resetList[i]].clear();
+        if(grid.groups.hasOwnProperty(resetList[i])){
+          grid.groups[resetList[i]].clear();
         }
       }
     }
   };
 
-  function highlightHex(hex,options){
+  function highlightHex(grid,hex,options){
     options = options || {};
     hexElem = hex;
     options.parent = options.parent || "highlight"
-    if(!groups.hasOwnProperty(options.parent)){
-      groups[options.parent] = groups.default.nested();
+    if(!grid.groups.hasOwnProperty(options.parent)){
+      grid.groups[options.parent] = grid.groups.default.nested();
     }
 
     if(options.parent != 'default'){
-      groups[options.parent].front();
+      grid.groups[options.parent].front();
     }
 
     if(hex instanceof HexAPI.Hex){
@@ -221,11 +238,11 @@ var svgHex = (function(){
   };
 
   //The options list is the default list
-  function drawHexes(list,options){
+  function drawHexes(grid,list,options){
     options = options || gOptions;
-    list = list || grid.map;
+    list = list || grid.grid.map;
     for(h in list){
-      drawHex(list[h],options)
+      drawHex(grid,list[h],options)
     }
   };
 
@@ -248,7 +265,7 @@ var svgHex = (function(){
     }
     return eString;
   };
-
+ 
   function animateHex(hexElem, animName, front){
     if(typeof front == "undefined"){
       front = true;
