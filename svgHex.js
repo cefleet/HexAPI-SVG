@@ -48,6 +48,14 @@ var svgHex = (function(){
   function _setupGrid(container,options){
     var grid = HexAPI.setup(options);
       //draw = SVG(container);
+      if(options.hexList){
+        console.log(grid);
+        for(var h in grid.map){
+          if(options.hexList.indexOf(h)<0){
+            delete grid.map[h];
+          }
+        }
+      }
     var groups = {
       default : SVG(container)
     }
@@ -109,7 +117,7 @@ var svgHex = (function(){
     //this top one may not be needed
     //hex.svgElement = pHex;
     pHex.hex = hex;
-
+    pHex.grid = grid;
     if(options.events){
       for(e in options.events){
         pHex.on(e, options.events[e]);
@@ -126,9 +134,9 @@ var svgHex = (function(){
     //oneAtATime,ringOut,ringIn
     if(options.sequence) {
       options.range = range;
-      sequences[options.sequence.type](hexElem,options.sequence.delay,options,this)
+      sequences[options.sequence.type](grid,hexElem,options.sequence.delay,options,this)
     } else {
-      highlightList(hexList,options);
+      highlightList(grid,hexList,options);
     }
     return hexList;
   };
@@ -170,10 +178,11 @@ var svgHex = (function(){
     if(!grid.groups.hasOwnProperty(options.parent)){
       grid.groups[options.parent] = grid.groups.default.nested();
     }
+    console.log(options);
     if(options.reset){
-      resetHexes(options.reset);
+      resetHexes(grid,options.reset);
     }else if(!options.noReset){
-      resetHexes(options.parent);
+      resetHexes(grid,options.parent);
     }
 
     for(h in list){
@@ -216,7 +225,7 @@ var svgHex = (function(){
     }
 
     if(hex instanceof HexAPI.Hex){
-      var hexElem = drawHex(hex,options)
+      var hexElem = drawHex(grid,hex,options)
     }
     options.fill = options.fill || {color:gOptions.highlight.color, opacity:1};
 
@@ -265,7 +274,7 @@ var svgHex = (function(){
     }
     return eString;
   };
- 
+
   function animateHex(hexElem, animName, front){
     if(typeof front == "undefined"){
       front = true;
@@ -352,25 +361,25 @@ var anims = {
 };
 
 var sequences = {
-  ringOut : function(hexElem, delay, options){
+  ringOut : function(grid,hexElem, delay, options){
     options = options || {};
-    if(options.parent && groups.hasOwnProperty(options.parent)){
+    if(options.parent && grid.groups.hasOwnProperty(options.parent)){
       resetHexes(options.parent);
     }
     var i = 0;
     function myCallback(){
         var list = hexElem.hex.getHexesAtDistance(i);
-        var elemList = _idsToHex(list,this);
+        var elemList = _idsToHex(grid,list);
         options.noReset = true;
         options.reset = null;
-        highlightList(elemList,options);
+        highlightList(grid,elemList,options);
         i++;
         if(i > options.range){
           clearInterval(intervalID);
         }
     }
 
-    highlightList([hexElem.hex],options);
+    highlightList(grid,[hexElem.hex],options);
     var intervalID = window.setInterval(myCallback, delay);
   }
 };

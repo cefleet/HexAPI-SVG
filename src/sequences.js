@@ -1,23 +1,23 @@
 var sequences = {
-  ringOut : function(hexElem, delay, options){
+  ringOut : function(grid,hexElem, delay, options){
     options = options || {};
-    if(options.parent && groups.hasOwnProperty(options.parent)){
+    if(options.parent && grid.groups.hasOwnProperty(options.parent)){
       resetHexes(options.parent);
     }
     var i = 0;
     function myCallback(){
         var list = hexElem.hex.getHexesAtDistance(i);
-        var elemList = _idsToHex(list,this);
+        var elemList = _idsToHex(grid,list);
         options.noReset = true;
         options.reset = null;
-        highlightList(elemList,options);
+        highlightList(grid,elemList,options);
         i++;
         if(i > options.range){
           clearInterval(intervalID);
         }
     }
 
-    highlightList([hexElem.hex],options);
+    highlightList(grid,[hexElem.hex],options);
     var intervalID = window.setInterval(myCallback, delay);
   }
 };
