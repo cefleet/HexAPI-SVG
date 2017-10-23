@@ -49,15 +49,20 @@ var svgHex = (function(){
     var grid = HexAPI.setup(options);
       //draw = SVG(container);
       if(options.hexList){
-        console.log(grid);
         for(var h in grid.map){
           if(options.hexList.indexOf(h)<0){
             delete grid.map[h];
           }
         }
       }
+    //if it is a string then just let it be a string
+
+    if(typeof container == "string"){
+      container = SVG(container);
+    }
+
     var groups = {
-      default : SVG(container)
+      default : container
     }
 
     groups['highlight'] = groups.default.nested();
@@ -118,6 +123,7 @@ var svgHex = (function(){
     //hex.svgElement = pHex;
     pHex.hex = hex;
     pHex.grid = grid;
+
     if(options.events){
       for(e in options.events){
         pHex.on(e, options.events[e]);
@@ -178,7 +184,6 @@ var svgHex = (function(){
     if(!grid.groups.hasOwnProperty(options.parent)){
       grid.groups[options.parent] = grid.groups.default.nested();
     }
-    console.log(options);
     if(options.reset){
       resetHexes(grid,options.reset);
     }else if(!options.noReset){
@@ -402,5 +407,10 @@ var sequences = {
 //  resetHexes:resetHexes,
 
 })();
+
+//This is for the plugin system
+if(classes){
+  classes['svgHex'] = svgHex;
+}
 
 //# sourceMappingURL=svgHex.js.map

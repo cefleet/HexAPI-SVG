@@ -16,3 +16,8 @@
 //  resetHexes:resetHexes,
 
 })();
+
+//This is for the plugin system
+if(classes){
+  classes['svgHex'] = svgHex;
+}

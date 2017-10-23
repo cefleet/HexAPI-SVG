@@ -14,6 +14,17 @@ module.exports = function(grunt) {
         },
         src : 'svgHex.js',
         dest : 'svgHex.min.js'
+      },
+      noSVG : {
+        options : {
+          sourceMap : true,
+          sourceMapName : 'plugin.svgHex.min.map',
+          compress: {
+          //  drop_console: true
+          }
+        },
+        src : 'plugin.svgHex.js',
+        dest : 'plugin.svgHex.min.js'
       }
     },
 
@@ -27,6 +38,17 @@ module.exports = function(grunt) {
             'src/svgHex.js',
             'libraries/HexAPI.min.js',
             'libraries/svg.min.js',
+            'src/anims.js',
+            'src/sequences.js',
+            'src/close.js'
+          ]
+        }
+      },
+      noSVG : {
+        files : {
+          'plugin.svgHex.js': [
+            'src/svgHex.js',
+            'libraries/HexAPI.min.js',
             'src/anims.js',
             'src/sequences.js',
             'src/close.js'
